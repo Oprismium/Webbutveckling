@@ -1,59 +1,81 @@
 <!DOCTYPE html>
 <html lang="sv">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Webbutveckling</title>
-    <link rel="stylesheet" href="/css/master.css">
-    <!-- Link to your CSS file -->
-    <script src="/js/script.js" defer></script>
-    <!-- Link to your JavaScript file -->
+    <link rel="stylesheet" href="/01-html/css/master.css">
+    <script src="/01-html/js/script.js" defer></script>
 </head>
 
 <body>
-    <header>
-        <h1>Webbutveckling</h1>
-        <div class="hamburger-menu ">
-            <div class="menu-icon " id="menu-icon ">&#9776;</div>
-            <nav class="menu ">
-                <ul>
-                    <li><a href="projekt1.html ">Projekt 1</a></li>
-                    <li><a href="projekt2.html ">Projekt 2</a></li>
-                    <li><a href="ovningar.html ">Övningar</a></li>
-                </ul>
-            </nav>
+    <header id="mainHeader">
+        <canvas id="themeCanvas"></canvas>
+        <canvas id="foregroundCanvas"></canvas>
+        <div class="header-content">
+            <h1>My Website</h1>
+            <p>Custodians watch over the Imperium, eternally vigilant.</p>
         </div>
     </header>
 
-    <main>
-        <section>
-            <h2>Om mig</h2>
-            <p>En kort presentation om dig själv eller din verksamhet.</p>
-        </section>
-
+    <div class="page-content">
         <section>
             <h2>Projekt:</h2>
-            <div class="project-container ">
-                <div class="card ">
-                    <h3>Projekt 1</h3>
-                    <p>En beskrivning av projektet.</p>
-                    <a href="projekt1.html ">Läs mer</a>
-                </div>
-                <div class="card ">
-                    <h3>Projekt 2</h3>
-                    <p>En beskrivning av projektet.</p>
-                    <a href="projekt2.html ">Läs mer</a>
-                </div>
-                <div class="card ">
-                    <h3>Övningar</h3>
-                    <p>Övningar för att förbättra dina färdigheter.</p>
-                    <a href="ovningar.html ">Läs mer</a>
-                </div>
+            <div class="project-container">
+
             </div>
         </section>
-    </main>
+    </div>
 
+    <aside class="sidebar" id="sidebar">
+        <ul>
+            <li><a href="index.html">Hem</a></li>
+            <li><a href="projekt.html">Projekt</a></li>
+            <li>
+                <div class="theme-container">
+                    <button id="theme-toggle">Ändra Tema</button>
+                    <div class="dropdown-content" id="theme-dropdown">
+                        <button class="theme-option" data-theme="realTheme">Real Theme</button>
+                        <button class="theme-option" data-theme="twilight">Twilight</button>
+                        <button class="theme-option" data-theme="onyx">Onyx</button>
+                        <button class="theme-option" data-theme="dawn">Forest Dawn</button>
+                        <button class="theme-option" data-theme="matrix">Matrix</button>
+                    </div>
+                    <div class="location-container">
+                        <label for="locationInput">Välj plats:</label>
+                        <input type="text" id="locationInput" placeholder="Stad, Land">
+                        <button id="locationSubmit">Uppdatera</button>
+                        <p id="locationStatus"></p>
+                    </div>
+
+                </div>
+            </li>
+        </ul>
+    </aside>
+
+    <div class="container">
+        <main>
+            <section>
+                <h2>Projekt:</h2>
+                <div class="project-container">
+                    <div class="card">
+                        <h3>Projekt 1</h3>
+                        <p>En beskrivning av projektet.</p>
+                        <a href="projekt1.html">Läs mer</a>
+                    </div>
+                    <div class="card">
+                        <h3>Projekt 2</h3>
+                        <p>En beskrivning av projektet.</p>
+                        <a href="projekt2.html">Läs mer</a>
+                    </div>
+                    <div class="card">
+                        <h3>Övningar</h3>
+                        <p>Övningar för att förbättra dina färdigheter.</p>
+                        <a href="ovningar.html">Läs mer</a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
-
 </html>

@@ -1,62 +1,86 @@
-// script.js
+// Sidebar behavior
+const sidebar = document.getElementById("sidebar");
+let hideTimeout;
 
-const menuIcon = document.getElementById("menu-icon");
-const menu = document.querySelector(".menu");
-
-let menuVisible = false;
-let closeTimeoutId;
-
-// Functionality to handle menu
-menuIcon.addEventListener("mouseover", () => {
-    menuVisible = true;
-    menu.style.display = "block";
-    menu.style.opacity = "1";
-    menu.style.transition = "opacity 0.3s ease-in";
-    menu.style.transform = "translateX(0)";
-    menuIcon.classList.add("open");
+document.addEventListener("mousemove", event => {
+    if (event.clientX < 50) sidebar.classList.add("visible");
 });
 
-menuIcon.addEventListener("mouseleave", () => {
-    closeTimeoutId = setTimeout(() => {
-        menu.style.opacity = "0";
-        menu.style.transform = "translateX(-20px)";
-        setTimeout(() => {
-            menu.style.display = "none";
-        }, 300);
-        menuIcon.classList.remove("open");
-    }, 450); // Delay
+sidebar.addEventListener("mouseleave", () => {
+    hideTimeout = setTimeout(() => sidebar.classList.remove("visible"), 100);
 });
 
-menu.addEventListener("mouseenter", () => {
-    clearTimeout(closeTimeoutId); // Stop closing
+// Dropdown
+const themeToggleButton = document.getElementById("theme-toggle");
+const themeDropdown = document.getElementById("theme-dropdown");
+
+themeToggleButton.addEventListener("click", () => themeDropdown.classList.toggle("show"));
+window.addEventListener("click", event => {
+    if (!event.target.matches('#theme-toggle') && themeDropdown.classList.contains("show")) {
+        themeDropdown.classList.remove("show");
+    }
 });
 
-menu.addEventListener("mouseleave", () => {
-    closeTimeoutId = setTimeout(() => {
-        menu.style.opacity = "0";
-        menu.style.transform = "translateX(-20px)";
-        setTimeout(() => {
-            menu.style.display = "none";
-        }, 300);
-        menuIcon.classList.remove("open");
-    }, 450);
-});
+// Theme map
+const themes = {
+    realTheme: { script: "/01-html/js/realTheme.js" },
+    twilight: { script: "/01-html/js/twilight.js" },
+    onyx: { script: "/01-html/js/onyx.js" },
+    dawn: { script: "/01-html/js/dawn.js" },
+    matrix: { script: "/01-html/js/matrix.js" }
+};
 
-// Idle Animation
-const cards = document.querySelectorAll('.card');
-let idleTime = 0;
+let currentThemeAnimation = null;
+let currentScript = null;
 
-function resetIdleTime() {
-    idleTime = 0;
-    cards.forEach(card => card.classList.remove('idle-card')); // Stop idle animation
+async function setTheme(theme) {
+    // Stop previous animation
+    if (currentThemeAnimation?.stop) currentThemeAnimation.stop();
+
+    // Clear canvas
+    const canvas = document.getElementById('themeCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Remove previously loaded script
+    if (currentScript) document.head.removeChild(currentScript);
+
+    // Load new script
+    const script = document.createElement('script');
+    script.src = themes[theme].script;
+    script.defer = true;
+    document.head.appendChild(script);
+    currentScript = script;
+
+    // Update body class
+    document.body.className = '';
+    document.body.classList.add(`${theme}-theme`);
 }
 
-setInterval(() => {
-    idleTime++;
-    if (idleTime >= 5) { // 5 seconds of inactivity
-        cards.forEach(card => card.classList.add('idle-card')); // Start idle animation
-    }
-}, 1000);
+// Theme selection buttons
+document.querySelectorAll('.theme-option').forEach(btn => {
+    btn.addEventListener('click', e => setTheme(e.target.dataset.theme));
+});
 
-document.addEventListener('mousemove', resetIdleTime);
-document.addEventListener('keypress', resetIdleTime);
+// Initial theme
+window.onload = () => setTheme('realTheme');
+
+// Resize canvas to header
+const canvas = document.getElementById('themeCanvas');
+function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+
+window.addEventListener('scroll', () => {
+    const fg = document.getElementById('foregroundCanvas');
+    const scrollTop = window.scrollY;
+
+    // Move FG canvas up with scroll
+    fg.style.transform = `translateY(-${scrollTop}px)`;
+});
+
+

@@ -23,11 +23,11 @@ window.addEventListener("click", event => {
 
 // Theme map
 const themes = {
-    realTheme: { script: "/01-html/js/realTheme.js" },
-    twilight: { script: "/01-html/js/twilight.js" },
-    onyx: { script: "/01-html/js/onyx.js" },
-    dawn: { script: "/01-html/js/dawn.js" },
-    matrix: { script: "/01-html/js/matrix.js" }
+    realTheme: { script: "./01-html/js/realTheme.js" },
+    twilight: { script: "./01-html/js/twilight.js" },
+    onyx: { script: "./01-html/js/onyx.js" },
+    dawn: { script: "./01-html/js/dawn.js" },
+    matrix: { script: "./01-html/js/matrix.js" }
 };
 
 let currentThemeAnimation = null;

@@ -1,4 +1,4 @@
-    import { API_KEY } from './config.js';
+    import { API_KEY } from '.config.js';
 (() => {
     const locationInput = document.getElementById('locationInput');
     const locationSubmit = document.getElementById('locationSubmit');

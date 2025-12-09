@@ -1,52 +1,79 @@
-    import { API_KEY } from '.config.js';
+// realTime.js — Fetches real weather & time, updates realTheme
+import { API_KEY } from './config.js';
 (() => {
-    const locationInput = document.getElementById('locationInput');
-    const locationSubmit = document.getElementById('locationSubmit');
-    const locationStatus = document.getElementById('locationStatus');
+    const input = document.getElementById('locationInput');
+    const button = document.getElementById('setLocationBtn');
 
-    let realTimeData = {
-        hour: 12,
-        cloudiness: 0,
-        windSpeed: 0,
-        precipitation: 0,
-        season: 'spring'
-    };
+    if (!input || !button) return;
 
+    let currentCity = '';
 
-
+    // Helper: fetch weather & time for city
     async function fetchWeather(city) {
-        locationStatus.textContent = 'Hämtar data...';
         try {
-            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric`);
-            if (!response.ok) throw new Error('Plats ej hittad');
+            const resp = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
+            if (!resp.ok) throw new Error('City not found');
+            const data = await resp.json();
 
-            const data = await response.json();
+            const timeOffset = data.timezone; // in seconds
+            const localTime = new Date(Date.now() + timeOffset * 1000 - new Date().getTimezoneOffset()*60000);
+            const hour = localTime.getHours();
 
-            // Extract relevant parameters
-            const now = new Date((data.dt + data.timezone) * 1000); // local time
-            realTimeData.hour = now.getUTCHours();
-            realTimeData.cloudiness = data.clouds.all; // 0–100%
-            realTimeData.windSpeed = data.wind.speed; // m/s
-            realTimeData.precipitation = data.rain?.['1h'] || data.snow?.['1h'] || 0;
-            
-            const month = now.getUTCMonth() + 1;
-            if (month >= 3 && month <= 5) realTimeData.season = 'spring';
-            else if (month >= 6 && month <= 8) realTimeData.season = 'summer';
-            else if (month >= 9 && month <= 11) realTimeData.season = 'autumn';
-            else realTimeData.season = 'winter';
+            // Determine time of day
+            let timeOfDay;
+            if (hour >= 5 && hour < 8) timeOfDay = 'dawn';
+            else if (hour >= 8 && hour < 18) timeOfDay = 'day';
+            else if (hour >= 18 && hour < 20) timeOfDay = 'dusk';
+            else timeOfDay = 'night';
 
-            locationStatus.textContent = `Uppdaterad för ${city}`;
-            // Send data to theme
-            window.applyRealTimeData?.(realTimeData);
+            // Season approximation
+            const month = localTime.getMonth();
+            const season = (month >= 2 && month <= 4) ? 'spring' :
+                           (month >= 5 && month <= 7) ? 'summer' :
+                           (month >= 8 && month <= 10) ? 'autumn' : 'winter';
+
+            // Cloud coverage 0–1
+            const cloudCoverage = (data.clouds && data.clouds.all) ? data.clouds.all/100 : 0;
+
+            // Wind speed
+            const windSpeed = data.wind && data.wind.speed ? data.wind.speed : 0;
+
+            // Precipitation type
+            let precipitation = 'none';
+            if (data.rain) precipitation = 'rain';
+            else if (data.snow) precipitation = 'snow';
+
+            return { timeOfDay, season, cloudCoverage, windSpeed, precipitation };
+
         } catch (err) {
-            console.error(err);
-            locationStatus.textContent = 'Fel vid hämtning av data.';
+            console.error('Weather fetch error:', err);
+            return null;
         }
     }
 
-    locationSubmit.addEventListener('click', () => {
-        const city = locationInput.value.trim();
-        if (city) fetchWeather(city);
+    // Update theme function
+    async function updateTheme(city) {
+        const themeData = await fetchWeather(city);
+        if (!themeData) return;
+
+        if (window.updateRealTheme) {
+            window.updateRealTheme(themeData);
+        } else {
+            console.warn('updateRealTheme not defined.');
+        }
+    }
+
+    // Event listener
+    button.addEventListener('click', () => {
+        const city = input.value.trim();
+        if (!city) return;
+        currentCity = city;
+        updateTheme(currentCity);
     });
+
+    // Optional: refresh every 10 minutes
+    setInterval(() => {
+        if (currentCity) updateTheme(currentCity);
+    }, 10*60*1000);
 
 })();

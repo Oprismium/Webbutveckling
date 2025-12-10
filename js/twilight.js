@@ -20,14 +20,14 @@
         'rgba(150,255,220,0.06)'
     ];
 
-    for (let i = 0; i < auroraColors.length; i++) {
+    for (const element of auroraColors) {
         auroraLayers.push({
             amplitude: 40 + Math.random() * 60,
             wavelength: 600 + Math.random() * 800,
             yOffset: 10 + Math.random() * 50,
             phase: Math.random() * Math.PI * 2,
             speed: 0.001 + Math.random() * 0.002,
-            color: auroraColors[i],
+            color: element,
             verticalDrift: (Math.random() * 0.006) - 0.003,
             flickerOffset: Math.random() * 0.01
         });
@@ -74,6 +74,7 @@
     const shootingStars = [];
 
     let animationId;
+
     function drawBG() {
         ctx.clearRect(0, 0, width, height);
 
@@ -203,26 +204,27 @@
 
     // Hills
     const hills = [
-        { x: 0, y: fgHeight, w: fgWidth*1.2, h: 90, color: 'rgba(15,5,35,0.8)' },
+        { x: 0, y: fgHeight, w: fgWidth * 1.2, h: 90, color: 'rgba(15,5,35,0.8)' },
         { x: -50, y: fgHeight, w: fgWidth, h: 70, color: 'rgba(25,10,50,0.7)' },
-        { x: 30, y: fgHeight, w: fgWidth*1.1, h: 50, color: 'rgba(35,15,65,0.5)' }
+        { x: 30, y: fgHeight, w: fgWidth * 1.1, h: 50, color: 'rgba(35,15,65,0.5)' }
     ];
 
     // Tree layers
     let treeLayers = [];
+
     function createTrees() {
         treeLayers = [];
         // back
         const backTrees = [];
-        for (let i = 0; i < Math.floor(fgWidth / 8); i++) backTrees.push({ x: Math.random()*fgWidth, y: fgHeight - 50, scale: 0.6 + Math.random()*0.3 });
+        for (let i = 0; i < Math.floor(fgWidth / 8); i++) backTrees.push({ x: Math.random() * fgWidth, y: fgHeight - 50, scale: 0.6 + Math.random() * 0.3 });
         treeLayers.push(backTrees);
         // middle
         const midTrees = [];
-        for (let i = 0; i < Math.floor(fgWidth / 16); i++) midTrees.push({ x: Math.random()*fgWidth, y: fgHeight - (Math.random()*40 + 30), scale: 0.9 + Math.random()*0.4 });
+        for (let i = 0; i < Math.floor(fgWidth / 16); i++) midTrees.push({ x: Math.random() * fgWidth, y: fgHeight - (Math.random() * 40 + 30), scale: 0.9 + Math.random() * 0.4 });
         treeLayers.push(midTrees);
         // front
         const frontTrees = [];
-        for (let i = 0; i < Math.floor(fgWidth / 32); i++) frontTrees.push({ x: Math.random()*fgWidth, y: fgHeight - (Math.random()*50 + 20), scale: 1.2 + Math.random()*0.6 });
+        for (let i = 0; i < Math.floor(fgWidth / 32); i++) frontTrees.push({ x: Math.random() * fgWidth, y: fgHeight - (Math.random() * 50 + 20), scale: 1.2 + Math.random() * 0.6 });
         treeLayers.push(frontTrees);
     }
     createTrees();
@@ -231,43 +233,44 @@
     const fireflies = [];
     for (let i = 0; i < Math.floor(fgWidth / 40); i++) {
         fireflies.push({
-            x: Math.random()*fgWidth,
-            y: fgHeight - (Math.random()*120 + 20),
-            r: 1 + Math.random()*2,
-            dx: (Math.random()-0.5)*0.2,
-            dy: (Math.random()-0.5)*0.2,
-            alpha: 0.3 + Math.random()*0.5,
-            flickerSpeed: 0.01 + Math.random()*0.02
+            x: Math.random() * fgWidth,
+            y: fgHeight - (Math.random() * 120 + 20),
+            r: 1 + Math.random() * 2,
+            dx: (Math.random() - 0.5) * 0.2,
+            dy: (Math.random() - 0.5) * 0.2,
+            alpha: 0.3 + Math.random() * 0.5,
+            flickerSpeed: 0.01 + Math.random() * 0.02
         });
     }
 
     let frame = 0;
+
     function drawFG() {
         frame++;
-        fctx.clearRect(0,0,fgWidth,fgHeight);
+        fctx.clearRect(0, 0, fgWidth, fgHeight);
 
         // Draw hills
         hills.forEach(h => {
             fctx.fillStyle = h.color;
             fctx.beginPath();
-            fctx.ellipse(h.x + h.w/2, h.y, h.w, h.h, 0, 0, Math.PI, true);
+            fctx.ellipse(h.x + h.w / 2, h.y, h.w, h.h, 0, 0, Math.PI, true);
             fctx.fill();
         });
 
         // Tree sway
-        const swayAngle = Math.sin(frame*0.01)*2;
+        const swayAngle = Math.sin(frame * 0.01) * 2;
         treeLayers.forEach(layer => {
             layer.forEach(t => {
                 fctx.fillStyle = `rgba(10,10,20,0.85)`;
                 fctx.beginPath();
-                const tiers = 3 + (t.scale>1 ? 1 : 0);
-                for (let j=0;j<tiers;j++){
-                    const tierHeight = 10*t.scale;
-                    const tierWidth = 4*t.scale*(tiers-j);
-                    const offset = swayAngle*(j/tiers);
-                    fctx.moveTo(t.x, t.y - j*tierHeight);
-                    fctx.lineTo(t.x - tierWidth + offset, t.y + tierHeight - j*tierHeight);
-                    fctx.lineTo(t.x + tierWidth + offset, t.y + tierHeight - j*tierHeight);
+                const tiers = 3 + (t.scale > 1 ? 1 : 0);
+                for (let j = 0; j < tiers; j++) {
+                    const tierHeight = 10 * t.scale;
+                    const tierWidth = 4 * t.scale * (tiers - j);
+                    const offset = swayAngle * (j / tiers);
+                    fctx.moveTo(t.x, t.y - j * tierHeight);
+                    fctx.lineTo(t.x - tierWidth + offset, t.y + tierHeight - j * tierHeight);
+                    fctx.lineTo(t.x + tierWidth + offset, t.y + tierHeight - j * tierHeight);
                     fctx.closePath();
                 }
                 fctx.fill();
@@ -276,14 +279,17 @@
 
         // Fireflies
         fireflies.forEach(f => {
-            fctx.globalAlpha = f.alpha + Math.sin(Date.now()*f.flickerSpeed)*0.3;
+            fctx.globalAlpha = f.alpha + Math.sin(Date.now() * f.flickerSpeed) * 0.3;
             fctx.fillStyle = 'rgba(255,255,180,1)';
             fctx.beginPath();
-            fctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+            fctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
             fctx.fill();
-            f.x += f.dx; f.y += f.dy;
-            if(f.x<0) f.x=fgWidth; if(f.x>fgWidth) f.x=0;
-            if(f.y<fgHeight-150) f.y=fgHeight-20; if(f.y>fgHeight-20) f.y=fgHeight-150;
+            f.x += f.dx;
+            f.y += f.dy;
+            if (f.x < 0) f.x = fgWidth;
+            if (f.x > fgWidth) f.x = 0;
+            if (f.y < fgHeight - 150) f.y = fgHeight - 20;
+            if (f.y > fgHeight - 20) f.y = fgHeight - 150;
         });
         fctx.globalAlpha = 1;
 

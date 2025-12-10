@@ -1,7 +1,9 @@
 /* ============================================================
    GLOBAL BODY
    ============================================================ */
-html, body {
+
+html,
+body {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -11,16 +13,21 @@ html, body {
     position: relative;
 }
 
+
 /* ============================================================
    HEADER & CANVASES
    ============================================================ */
+
 header#mainHeader {
     position: relative;
-    height: 100vh; /* full viewport height */
+    height: 100vh;
+    /* full viewport height */
     overflow: visible;
 }
 
+
 /* Background canvas — fixed, never scrolls */
+
 #themeCanvas {
     position: fixed;
     top: 0;
@@ -31,7 +38,9 @@ header#mainHeader {
     pointer-events: none;
 }
 
+
 /* Foreground canvas — scrolls with page */
+
 #foregroundCanvas {
     position: absolute;
     bottom: 0;
@@ -42,7 +51,9 @@ header#mainHeader {
     pointer-events: none;
 }
 
+
 /* Header content (text) */
+
 .header-content {
     position: absolute;
     top: 50%;
@@ -51,10 +62,12 @@ header#mainHeader {
     z-index: 2;
     text-align: center;
     color: #e9d7ff;
-    text-shadow: 0 0 15px rgba(230,200,255,0.7);
+    text-shadow: 0 0 15px rgba(230, 200, 255, 0.7);
 }
 
+
 /* H1 and paragraph inside header */
+
 header h1 {
     font-size: 3em;
     margin: 0;
@@ -68,29 +81,36 @@ header p {
     position: relative;
     z-index: 2;
     color: #d6b8ff;
-    text-shadow: 0 0 12px rgba(200,180,255,0.5);
+    text-shadow: 0 0 12px rgba(200, 180, 255, 0.5);
 }
+
 
 /* ============================================================
    PAGE CONTENT SCROLLING
    ============================================================ */
-.page-content, .container {
+
+.page-content,
+.container {
     position: relative;
     z-index: 2;
     margin-top: 0;
-    background-color: rgba(30, 15, 50, 0.95); /* restores main content bg */
-    border-top: 2px solid #c29bff;             /* line separating header from main */
-    box-shadow: 0 0 15px rgba(200,140,255,0.3);
+    background-color: rgba(30, 15, 50, 0.95);
+    /* restores main content bg */
+    border-top: 2px solid #c29bff;
+    /* line separating header from main */
+    box-shadow: 0 0 15px rgba(200, 140, 255, 0.3);
     border-radius: 10px 10px 0 0;
     padding: 20px;
 }
 
+
 /* ============================================================
    SIDEBAR
    ============================================================ */
+
 .sidebar {
     width: 250px;
-    background: rgba(30,15,50,0.82);
+    background: rgba(30, 15, 50, 0.82);
     position: fixed;
     top: 0;
     left: -250px;
@@ -99,12 +119,21 @@ header p {
     transition: left 0.3s ease;
     z-index: 1000;
     backdrop-filter: blur(4px);
-    box-shadow: inset 0 0 20px rgba(180,130,255,0.15);
+    box-shadow: inset 0 0 20px rgba(180, 130, 255, 0.15);
 }
 
-.sidebar.visible { left: 0; }
-.sidebar ul { list-style: none; padding: 0; }
-.sidebar ul li { margin: 15px 0; }
+.sidebar.visible {
+    left: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 15px 0;
+}
 
 .sidebar ul li a,
 .sidebar ul li button {
@@ -122,12 +151,14 @@ header p {
 
 .sidebar ul li a:hover,
 .sidebar ul li button:hover {
-    background: rgba(60,35,95,0.85);
+    background: rgba(60, 35, 95, 0.85);
 }
+
 
 /* ============================================================
    DROPDOWN MENU
    ============================================================ */
+
 .theme-container {
     position: relative;
     display: inline-block;
@@ -139,25 +170,25 @@ header p {
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s, transform 0.2s;
-    background: rgba(50,30,85,0.55);
+    background: rgba(50, 30, 85, 0.55);
     color: #d6b8ff;
 }
 
 #theme-toggle:hover {
     transform: scale(1.05);
-    background: rgba(50,30,85,0.75);
+    background: rgba(50, 30, 85, 0.75);
 }
 
 .dropdown-content {
     display: none;
     position: absolute;
     min-width: 150px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     opacity: 0;
     transition: opacity 0.5s ease, transform 0.3s ease;
     transform: translateY(-10px);
-    background: rgba(32,16,55,0.92);
+    background: rgba(32, 16, 55, 0.92);
     border-radius: 4px;
 }
 
@@ -179,12 +210,14 @@ header p {
 }
 
 .dropdown-content button:hover {
-    background: rgba(60,35,95,0.85);
+    background: rgba(60, 35, 95, 0.85);
 }
+
 
 /* ============================================================
    CARDS
    ============================================================ */
+
 .card {
     border-radius: 10px;
     margin: 20px 0;
@@ -195,18 +228,27 @@ header p {
     border: 1px solid;
 }
 
+
 /* ============================================================
    THEME CLASSES
    ============================================================ */
-/* Twilight */
-body.twilight-theme { background: linear-gradient(to bottom, #251338, #120b1e 55%, #07060a); color: #d6b8ff; }
-/* Light/Dawn, Onyx, Matrix — keep as previously defined */
+
+body {
+    background: linear-gradient(to bottom, #251338, #120b1e 55%, #07060a);
+    color: #d6b8ff;
+}
+
 
 /* ============================================================
    PAGE STRUCTURE
    ============================================================ */
-.project-container { display:flex; flex-wrap:wrap; justify-content:flex-start; padding:20px; }
 
+.project-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 20px;
+}
 
 .location-container {
     margin: 15px;
@@ -221,7 +263,7 @@ body.twilight-theme { background: linear-gradient(to bottom, #251338, #120b1e 55
     margin-bottom: 5px;
     border-radius: 4px;
     border: none;
-    background: rgba(60,35,95,0.75);
+    background: rgba(60, 35, 95, 0.75);
     color: #fff;
 }
 
@@ -229,13 +271,13 @@ body.twilight-theme { background: linear-gradient(to bottom, #251338, #120b1e 55
     padding: 5px 10px;
     border-radius: 4px;
     border: none;
-    background: rgba(50,30,85,0.85);
+    background: rgba(50, 30, 85, 0.85);
     color: #fff;
     cursor: pointer;
 }
 
 .location-container button:hover {
-    background: rgba(70,45,115,0.9);
+    background: rgba(70, 45, 115, 0.9);
 }
 
 #locationStatus {

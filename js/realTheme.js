@@ -8,6 +8,7 @@
     let width = canvas.width = canvas.offsetWidth;
     let height = canvas.height = canvas.offsetHeight;
 
+
     // === Real-time parameters ===
     const themeState = {
         timeOfDay: 'night', // 'day', 'dawn', 'dusk', 'night'

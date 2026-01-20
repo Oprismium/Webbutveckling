@@ -8,6 +8,7 @@
     canvas.style.display = 'block';
     const ctx = canvas.getContext('2d');
 
+
     let width = canvas.width = canvas.offsetWidth;
     let height = canvas.height = canvas.offsetHeight;
 

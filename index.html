@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Webbutveckling</title>
     <link rel="stylesheet" href="./css/master.css">
-    <script src="/js/sidebarLoader.js" defer></script>
-    <script src="/js/globalUI.js" defer></script>
     <script src="./script.js" defer></script>
 </head>
 
@@ -21,7 +19,6 @@
         </div>
     </header>
 
-
     <div class="page-content">
         <section>
 
@@ -29,26 +26,50 @@
     </section>
     </div>
 
+    <aside class="sidebar" id="sidebar">
+        <ul>
+            <li><a href="./index.html">Hem</a></li>
+            <li><a href="./html/projekt.html">Projekt</a></li>
+            <li>
+                <div class="theme-container">
+                    <button id="theme-toggle">Ändra Tema</button>
+                    <div class="dropdown-content" id="theme-dropdown">
+                        <button class="theme-option" data-theme="realTheme">Real Theme</button>
+                        <button class="theme-option" data-theme="twilight">Twilight</button>
+                        <button class="theme-option" data-theme="onyx">Onyx</button>
+                        <button class="theme-option" data-theme="dawn">Forest Dawn</button>
+                        <button class="theme-option" data-theme="matrix">Matrix</button>
+                    </div>
+                    <div class="sidebar-section">
+                        <label for="locationInput" style="color:#ceb6ff;">Enter Location:</label>
+                        <input type="text" id="locationInput" placeholder="City, Country" style="width: 90%; margin-top: 5px; padding: 5px; border-radius: 3px; border: none; background: rgba(50,30,85,0.5); color:#d6b8ff;">
+                        <button id="setLocationBtn" style="margin-top: 5px; padding:5px 10px; border-radius:3px; background: rgba(60,35,95,0.7); color:#d6b8ff; border:none; cursor:pointer;">Set Location</button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </aside>
+
     <div class="container">
         <main>
             <section>
-                <h2>Projects:</h2>
+                <h2>Projekt:</h2>
                 <div class="project-container">
                     <div class="card">
-                        <h3>Project 1</h3>
-                        <p></p>
-                        <a href="p1.html">Read more</a>
+                        <h3>Projekt 1</h3>
+                        <p>En beskrivning av projektet.</p>
+                        <a href="projekt1.html">Läs mer</a>
                     </div>
                     <div class="card">
-                        <h3>Project 2</h3>
-                        <p></p>
-                        <a href="p2.html">Read more</a>
+                        <h3>Projekt 2</h3>
+                        <p>En beskrivning av projektet.</p>
+                        <a href="projekt2.html">Läs mer</a>
                     </div>
-                    <!-- <div class="card">
+                    <div class="card">
                         <h3>Övningar</h3>
                         <p>Övningar för att förbättra dina färdigheter.</p>
-                        <a href="test.html">Read more</a>
-                    </div> -->
+                        <a href="ovningar.html">Läs mer</a>
+                    </div>
                 </div>
             </section>
         </main>

@@ -8,7 +8,6 @@ import { API_KEY } from './config.js';
 
     let currentCity = '';
 
-
     // Helper: fetch weather & time for city
     async function fetchWeather(city) {
         try {
@@ -17,7 +16,7 @@ import { API_KEY } from './config.js';
             const data = await resp.json();
 
             const timeOffset = data.timezone; // in seconds
-            const localTime = new Date(Date.now() + timeOffset * 1000 - new Date().getTimezoneOffset() * 60000);
+            const localTime = new Date(Date.now() + timeOffset * 1000 - new Date().getTimezoneOffset()*60000);
             const hour = localTime.getHours();
 
             // Determine time of day
@@ -30,11 +29,11 @@ import { API_KEY } from './config.js';
             // Season approximation
             const month = localTime.getMonth();
             const season = (month >= 2 && month <= 4) ? 'spring' :
-                (month >= 5 && month <= 7) ? 'summer' :
-                (month >= 8 && month <= 10) ? 'autumn' : 'winter';
+                           (month >= 5 && month <= 7) ? 'summer' :
+                           (month >= 8 && month <= 10) ? 'autumn' : 'winter';
 
             // Cloud coverage 0–1
-            const cloudCoverage = (data.clouds && data.clouds.all) ? data.clouds.all / 100 : 0;
+            const cloudCoverage = (data.clouds && data.clouds.all) ? data.clouds.all/100 : 0;
 
             // Wind speed
             const windSpeed = data.wind && data.wind.speed ? data.wind.speed : 0;
@@ -75,6 +74,6 @@ import { API_KEY } from './config.js';
     // Optional: refresh every 10 minutes
     setInterval(() => {
         if (currentCity) updateTheme(currentCity);
-    }, 10 * 60 * 1000);
+    }, 10*60*1000);
 
 })();

@@ -6,7 +6,6 @@
     let width = canvas.width = canvas.offsetWidth;
     let height = canvas.height = canvas.offsetHeight;
 
-
     const stars = [];
     for (let i = 0; i < 120; i++) {
         stars.push({
@@ -29,7 +28,7 @@
         ctx.fillStyle = '#ffffff';
         stars.forEach(s => {
             ctx.beginPath();
-            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
             ctx.fill();
             s.x += s.dx;
             s.y += s.dy;

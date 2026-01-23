@@ -8,11 +8,18 @@
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = 200;
 
+<<<<<<< HEAD
 
     const stars = [];
     const starCount = 100;
     const shootingStars = [];
 
+=======
+    const stars = [];
+    const starCount = 100;
+    const shootingStars = [];
+
+>>>>>>> 0dc8466bee2c78718d1438c08efbe9439b14d66a
     for (let i = 0; i < starCount; i++) {
         stars.push({
             x: Math.random() * width,

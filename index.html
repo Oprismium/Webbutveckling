@@ -7,6 +7,7 @@
     <title>Webbutveckling</title>
     <link rel="stylesheet" href="./css/master.css">
     <script src="./script.js" defer></script>
+    <script src="./js/twilight.js" defer></script>
 </head>
 
 <body>
@@ -42,9 +43,32 @@
                         <button class="theme-option" data-theme="matrix">Matrix</button>
                     </div>
                     <div class="sidebar-section">
-                        <label for="locationInput" style="color:#ceb6ff;">Enter Location:</label>
-                        <input type="text" id="locationInput" placeholder="City, Country" style="width: 90%; margin-top: 5px; padding: 5px; border-radius: 3px; border: none; background: rgba(50,30,85,0.5); color:#d6b8ff;">
-                        <button id="setLocationBtn" style="margin-top: 5px; padding:5px 10px; border-radius:3px; background: rgba(60,35,95,0.7); color:#d6b8ff; border:none; cursor:pointer;">Set Location</button>
+
+                        <label>Time of Day</label>
+                        <input id="timeOfDay" type="range" min="0" max="23" value="12">
+
+                        <label>Season</label>
+                        <select id="seasonSelect">
+                            <option value="winter">Winter</option>
+                            <option value="spring" selected>Spring</option>
+                            <option value="summer">Summer</option>
+                            <option value="autumn">Autumn</option>
+                        </select>
+
+                        <label>Cloud</label>
+                        <select id="cloudSelect">
+                            <option value="clear" selected>Clear</option>
+                            <option value="cloudy">Cloudy</option>
+                            <option value="overcast">Overcast</option>
+                        </select>
+
+                        <label>Precipitation</label>
+                        <select id="precipSelect">
+                            <option value="none" selected>None</option>
+                            <option value="rain">Rain</option>
+                            <option value="snow">Snow</option>
+                        </select>
+
                     </div>
                 </div>
             </li>

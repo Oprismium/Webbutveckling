@@ -196,7 +196,10 @@
 // ----------------------
 (() => {
     const fgCanvas = document.getElementById('foregroundCanvas');
-    if (!fgCanvas) return;
+            if (!fgCanvas) return;
+        // If world system exists, DO NOT run twilight FG
+        if (window.WORLD_STATE) return;
+
     fgCanvas.style.display = 'block';
     const fctx = fgCanvas.getContext('2d');
 
@@ -205,10 +208,18 @@
 
     // Hills
     const hills = [
-        { x: 0, y: fgHeight, w: fgWidth * 1.2, h: 90, color: 'rgba(15,5,35,0.8)' },
-        { x: -50, y: fgHeight, w: fgWidth, h: 70, color: 'rgba(25,10,50,0.7)' },
-        { x: 30, y: fgHeight, w: fgWidth * 1.1, h: 50, color: 'rgba(35,15,65,0.5)' }
-    ];
+    // distant
+    { x: -200, y: fgHeight, w: fgWidth * 0.9, h: 70, color: 'rgba(45,20,70,0.35)' },
+    { x: 300,  y: fgHeight, w: fgWidth * 1.1, h: 90, color: 'rgba(45,20,70,0.35)' },
+
+    // mid
+    { x: -150, y: fgHeight, w: fgWidth * 0.8, h: 110, color: 'rgba(25,10,50,0.55)' },
+    { x: 250,  y: fgHeight, w: fgWidth * 0.9, h: 130, color: 'rgba(25,10,50,0.55)' },
+
+    // foreground
+    { x: -100, y: fgHeight, w: fgWidth * 0.7, h: 160, color: 'rgba(15,5,35,0.85)' },
+    { x: 350,  y: fgHeight, w: fgWidth * 0.8, h: 180, color: 'rgba(15,5,35,0.85)' }
+];
 
     // Tree layers
     let treeLayers = [];
@@ -249,6 +260,7 @@
     function drawFG() {
         frame++;
         fctx.clearRect(0, 0, fgWidth, fgHeight);
+        const now = performance.now();  
 
         // Draw hills
         hills.forEach(h => {

@@ -1,354 +1,437 @@
-// ============================================================
-// WORLD.JS — CLEAN RENDER ENGINE (BG + FG)
-// ============================================================
+// World Theme world.js — DATA DRIVEN WORLD ENGINE
 
 (() => {
 
-    const world = {
-        timeOfDay: 14,
-        season: "summer",
-        cloud: "clear",
-        precip: "none"
+    // ============================================================
+    // WORLD STATE (MASTER CONTROL)
+    // ============================================================
+
+    const WORLD_STATE = {
+        timeOfDay: 12,          // 0 - 23
+        season: "spring",       // winter | spring | summer | autumn
+        cloud: "clear",         // clear | cloudy | overcast
+        precipitation: "none"   // none | rain | snow (winter only)
     };
 
-    window.worldState = world;
+    function syncUI() {
 
-    const canvas = document.getElementById("themeCanvas");
-    const fgCanvas = document.getElementById("foregroundCanvas");
+        const timeSlider = document.getElementById("timeOfDay");
+        const seasonSelect = document.getElementById("seasonSelect");
+        const cloudSelect = document.getElementById("cloudSelect");
+        const precipSelect = document.getElementById("precipSelect");
 
-    if (!canvas || !fgCanvas) return;
-
-    const ctx = canvas.getContext("2d");
-    const fctx = fgCanvas.getContext("2d");
-
-    let w, h, fw, fh;
-
-    function resize() {
-        w = canvas.width = canvas.offsetWidth;
-        h = canvas.height = canvas.offsetHeight;
-
-        fw = fgCanvas.width = fgCanvas.offsetWidth;
-        fh = fgCanvas.height = fgCanvas.offsetHeight;
-
-        buildScene();
+        if (timeSlider) timeSlider.value = WORLD_STATE.timeOfDay;
+        if (seasonSelect) seasonSelect.value = WORLD_STATE.season;
+        if (cloudSelect) cloudSelect.value = WORLD_STATE.cloud;
+        if (precipSelect) precipSelect.value = WORLD_STATE.precipitation;
     }
 
-    window.addEventListener("resize", resize);
+    syncUI();
 
-    // ========================================================
-    // NOISE
-    // ========================================================
-    function noise(x) {
-        return (
-            Math.sin(x * 0.006) * 0.7 +
-            Math.sin(x * 0.013) * 0.2 +
-            Math.sin(x * 0.021) * 0.1
-        );
+    // Optional global access (for debugging / external control)
+    window.WORLD_STATE = WORLD_STATE;
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
+
+    function isDay() {
+        return WORLD_STATE.timeOfDay >= 6 && WORLD_STATE.timeOfDay <= 18;
     }
 
-    // ========================================================
-    // SKY OBJECTS
-    // ========================================================
+    function starsEnabled() {
+        return !isDay();
+    }
+
+    function getSeason() {
+        return WORLD_STATE.season;
+    }
+
+    function getCloudAlpha() {
+        switch (WORLD_STATE.cloud) {
+            case "clear": return 0;
+            case "cloudy": return 0.05;
+            case "overcast": return 0.12;
+            default: return 0;
+        }
+    }
+
+    function getSeasonColors() {
+        switch (WORLD_STATE.season) {
+            case "winter":
+                return { grass: "rgba(230,230,240,0.9)", hill: "rgba(180,180,200,0.9)" };
+            case "spring":
+                return { grass: "rgba(90,200,90,0.9)", hill: "rgba(50,160,70,0.9)" };
+            case "summer":
+                return { grass: "rgba(40,140,60,0.95)", hill: "rgba(20,90,40,0.95)" };
+            case "autumn":
+                return { grass: "rgba(200,120,40,0.95)", hill: "rgba(120,70,20,0.95)" };
+            default:
+                return { grass: "rgba(60,120,60,0.9)", hill: "rgba(40,80,40,0.9)" };
+        }
+    }
+
+    function getTimeFactor() {
+        // 0 = midnight, 12 = noon
+        const t = WORLD_STATE.timeOfDay;
+
+        // convert to 0–1 cycle
+        return t / 24;
+    }
+
+    // ============================================================
+    // BACKGROUND CANVAS
+    // ============================================================
+
+    const canvas = document.getElementById('themeCanvas');
+    if (!canvas) return;
+
+    canvas.style.display = 'block';
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = canvas.offsetWidth;
+    let height = canvas.height = canvas.offsetHeight;
+
+    // ============================================================
+    // STARS
+    // ============================================================
+
     const stars = [];
-    const clouds = [];
+    const starCount = 450;
 
-    function buildStars() {
-        stars.length = 0;
-        for (let i = 0; i < 140; i++) {
-            stars.push({
-                x: Math.random() * w,
-                y: Math.random() * h * 0.6,
-                r: Math.random() * 1.2,
-                a: 0.2 + Math.random() * 0.6
-            });
-        }
+    for (let i = 0; i < starCount; i++) {
+        stars.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: 0.5 + Math.random() * 0.5,
+            opacity: 0.3 + Math.random() * 0.5,
+            flicker: Math.random() * 0.005
+        });
     }
 
-    function buildClouds() {
-        clouds.length = 0;
-        for (let i = 0; i < 7; i++) {
-            clouds.push({
-                x: Math.random() * w,
-                y: 40 + i * 35,
-                s: 80 + Math.random() * 100
-            });
-        }
+    // ============================================================
+    // AURORA / MIST
+    // ============================================================
+
+    const auroraLayers = [];
+    const auroraColors = [
+        'rgba(102,255,153,0.12)',
+        'rgba(85,230,140,0.1)',
+        'rgba(120,250,180,0.08)',
+        'rgba(150,255,220,0.06)'
+    ];
+
+    for (const c of auroraColors) {
+        auroraLayers.push({
+            amplitude: 40 + Math.random() * 60,
+            wavelength: 600 + Math.random() * 800,
+            yOffset: 10 + Math.random() * 50,
+            phase: Math.random() * Math.PI * 2,
+            speed: 0.001 + Math.random() * 0.002,
+            color: c,
+            verticalDrift: (Math.random() * 0.006) - 0.003,
+            flickerOffset: Math.random() * 0.01
+        });
     }
 
-    function starsVisible(hour) {
-        return hour < 5 || hour >= 21;
+    // ============================================================
+    // MIST
+    // ============================================================
+
+    const mistLayers = [];
+    for (let i = 0; i < 2; i++) {
+        mistLayers.push({
+            y: 50 + i * 20,
+            height: 20 + Math.random() * 20,
+            alpha: 0.01 + Math.random() * 0.015,
+            speed: 0.05 + Math.random() * 0.05,
+            phase: Math.random() * 200
+        });
     }
 
-    function cloudAlpha(mode) {
-        return mode === "clear" ? 0 : mode === "cloudy" ? 0.25 : 0.45;
-    }
+    // ============================================================
+    // SHOOTING STARS
+    // ============================================================
 
-    // ========================================================
-    // FAR MOUNTAINS (BACKGROUND — MULTI-PEAK RANGE)
-    // ========================================================
+    const shootingStars = [];
 
-    function drawFarMountainsBackLayer() {
-        const baseY = h * 0.78;
+    let animationId;
 
-        ctx.beginPath();
-        ctx.moveTo(0, h);
-
-        for (let x = 0; x <= w + 40; x += 40) {
-
-            const y =
-                baseY
-                - 80
-                - noise(x * 0.905) * 86;
-
-            ctx.lineTo(x, y);
-        }
-
-        ctx.lineTo(w, h);
-        ctx.closePath();
-
-        ctx.fillStyle = "#1f2a3d";
-        ctx.fill();
-    }
-    
-    function drawMountains() {
-
-        // pushed DOWN = more sky dominance + proper distance feel
-        const baseY = h * 0.78;
-
-        ctx.beginPath();
-        ctx.moveTo(0, h);
-
-        // wider spacing = fewer peaks (KEY FIX)
-        const step = 56;
-
-        for (let x = 0; x <= w + step; x += step) {
-
-            // large-scale mountain mass (slow variation)
-            const mass =
-                noise(x * 0.04 + world.timeOfDay * 1.2) * 55;
-
-            // gentle ridge structure (NOT sharp spikes)
-            const ridge =
-                Math.sin(x * 0.08) * 7;
-
-            // reduced cliff detail (subtle only)
-            const cliff =
-                Math.abs(noise(x * 0.15)) * 20;
-
-            // very light breakup (prevents perfect smoothness)
-            const micro =
-                noise(x * 0.35) * 86;
-
-            const y =
-                baseY
-                - 20
-                - mass
-                - ridge
-                - cliff
-                - micro;
-
-            ctx.lineTo(x, y);
-        }
-
-        ctx.lineTo(w, h);
-        ctx.closePath();
-
-        ctx.fillStyle = "#141b22";
-        ctx.fill();
-    }
-
-    // ========================================================
-    // FOREGROUND HILLS (NO FULL OVERLAY, NO BOX EFFECT)
-    // ========================================================
-    const hills = [];
-
-    function buildHills() {
-        hills.length = 0;
-
-        const layers = [
-            { y: 0.70, h: 120, color: "#2f6a3d", density: 6 },
-            { y: 0.78, h: 170, color: "#245533", density: 7 }
-        ];
-
-        for (const l of layers) {
-
-            let x = -200; // start off-screen
-
-            while (x < fw + 200) {
-
-                const width =
-                    180 +
-                    Math.random() * 300 +
-                    l.density * 20;
-
-                const height =
-                    l.h * (0.6 + Math.random() * 0.8);
-
-                const gap =
-                    40 + Math.random() * 160; // irregular spacing (KEY FIX)
-
-                hills.push({
-                    x: x + Math.random() * 60, // slight jitter
-                    w: width,
-                    h: height,
-                    y: fh * l.y + (Math.random() * 25 - 12),
-                    color: l.color
-                });
-
-                x += width * 0.6 + gap; // overlap + irregularity
-            }
-        }
-    }
-
-    // ========================================================
-    // TREES
-    // ========================================================
-    const trees = [];
-
-    function buildTrees() {
-        trees.length = 0;
-        for (let i = 0; i < 60; i++) {
-            trees.push({
-                x: Math.random() * fw,
-                s: 0.7 + Math.random() * 1.2
-            });
-        }
-    }
-
-    // ========================================================
-    // SCENE
-    // ========================================================
-    function buildScene() {
-        buildStars();
-        buildClouds();
-        buildHills();
-        buildTrees();
-    }
-
-    // ========================================================
-    // SKY
-    // ========================================================
-    function sky(hour) {
-        if (hour < 6) return "#0b1020";
-        if (hour < 8) return "#ffb36b";
-        if (hour < 18) return "#87c9ff";
-        if (hour < 21) return "#ff7a4f";
-        return "#0b1020";
-    }
-
-    // ========================================================
-    // LOOP
-    // ========================================================
-    let bgId, fgId;
-    let frame = 0;
+    // ============================================================
+    // DRAW LOOP
+    // ============================================================
 
     function drawBG() {
 
-        ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = sky(world.timeOfDay);
-        ctx.fillRect(0, 0, w, h);
+        const now = performance.now();
+        const day = isDay();
+        const season = getSeasonColors();
 
-        drawFarMountainsBackLayer();
-        drawMountains();
+        const time = getTimeFactor();
+        // smooth sine wave:
+        // -1 = night
+        // +1 = day
+        const sun = Math.sin((time - 0.25) * Math.PI * 2);
 
-        if (starsVisible(world.timeOfDay)) {
-            ctx.fillStyle = "#fff";
-            for (const s of stars) {
-                ctx.globalAlpha = s.a;
+        const daylight = Math.max(0, sun);        // 0..1
+        const nightlight = 1 - daylight;          // inverse
+
+        ctx.clearRect(0, 0, width, height);
+
+        // --------------------------------------------------------
+        // SKY GRADIENT (TIME OF DAY CONTROL)
+        // --------------------------------------------------------
+
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+
+        // NIGHT BASE
+        const nightTop = { r: 10, g: 10, b: 25 };
+        const nightMid = { r: 20, g: 10, b: 40 };
+        const nightBot = { r: 5, g: 5, b: 10 };
+
+        // DAY BASE
+        const dayTop = { r: 80, g: 140, b: 255 };
+        const dayMid = { r: 140, g: 200, b: 255 };
+        const dayBot = { r: 200, g: 220, b: 255 };
+
+        // interpolate helper
+        const mix = (a, b) => a + (b - a) * daylight;
+
+        const top = `rgba(${mix(nightTop.r, dayTop.r)},
+                        ${mix(nightTop.g, dayTop.g)},
+                        ${mix(nightTop.b, dayTop.b)},1)`;
+
+        const mid = `rgba(${mix(nightMid.r, dayMid.r)},
+                        ${mix(nightMid.g, dayMid.g)},
+                        ${mix(nightMid.b, dayMid.b)},1)`;
+
+        const bot = `rgba(${mix(nightBot.r, dayBot.r)},
+                        ${mix(nightBot.g, dayBot.g)},
+                        ${mix(nightBot.b, dayBot.b)},1)`;
+
+        grad.addColorStop(0, top);
+        grad.addColorStop(0.5, mid);
+        grad.addColorStop(1, bot);
+
+        // --------------------------------------------------------
+        // CLOUD OVERLAY
+        // --------------------------------------------------------
+
+        const cloudAlpha = getCloudAlpha();
+        if (cloudAlpha > 0) {
+            ctx.fillStyle = `rgba(255,255,255,${cloudAlpha})`;
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        // --------------------------------------------------------
+        // STARS (ONLY NIGHT)
+        // --------------------------------------------------------
+
+        const starVisibility = nightlight; // 1 at night, 0 at day
+        if (starVisibility > 0.01) {
+            stars.forEach(s => {
+                ctx.globalAlpha = (s.opacity + Math.sin(now * s.flicker) * 0.02) * starVisibility;
+                ctx.fillStyle = "#fff";
                 ctx.beginPath();
                 ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
                 ctx.fill();
-            }
-            ctx.globalAlpha = 1;
+            });
         }
 
-        const a = cloudAlpha(world.cloud);
-        if (a > 0) {
-            ctx.fillStyle = `rgba(255,255,255,${a})`;
+        ctx.globalAlpha = 1;
 
-            for (const c of clouds) {
-                c.x += 0.05;
-                if (c.x > w + 200) c.x = -200;
+        // --------------------------------------------------------
+        // AURORA (UNCHANGED LOGIC)
+        // --------------------------------------------------------
+
+        auroraLayers.forEach(layer => {
+
+            ctx.beginPath();
+
+            for (let x = 0; x <= width; x += 4) {
+                const wave = Math.sin((x / layer.wavelength) * 2 * Math.PI + layer.phase);
+                const y = layer.yOffset + wave * layer.amplitude;
+
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+
+            ctx.lineTo(width, 0);
+            ctx.lineTo(0, 0);
+            ctx.closePath();
+
+            const g = ctx.createLinearGradient(0, 0, 0, 200);
+
+            const alpha = 0.1 + Math.sin(now * layer.flickerOffset) * 0.01;
+
+            g.addColorStop(0, layer.color.replace(/0\.\d+\)/, `${alpha})`));
+            g.addColorStop(1, "rgba(0,0,0,0)");
+
+            ctx.fillStyle = g;
+            ctx.fill();
+
+            layer.phase += layer.speed;
+        });
+
+        // --------------------------------------------------------
+        // MIST
+        // --------------------------------------------------------
+
+        mistLayers.forEach(mist => {
+            ctx.fillStyle = `rgba(200,200,200,${mist.alpha})`;
+            ctx.beginPath();
+            ctx.ellipse((mist.phase % (width + 400)) - 200,
+                mist.y,
+                width / 2,
+                mist.height,
+                0, 0, Math.PI * 2);
+            ctx.fill();
+
+            mist.phase += mist.speed;
+        });
+
+        // --------------------------------------------------------
+        // PRECIPITATION
+        // --------------------------------------------------------
+
+        if (WORLD_STATE.precipitation === "rain") {
+
+            ctx.strokeStyle = "rgba(180,200,255,0.3)";
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i < 120; i++) {
+                const x = Math.random() * width;
+                const y = Math.random() * height;
 
                 ctx.beginPath();
-                ctx.ellipse(c.x, c.y, c.s, 40, 0, 0, Math.PI * 2);
+                ctx.moveTo(x, y);
+                ctx.lineTo(x - 2, y + 10);
+                ctx.stroke();
+            }
+        }
+
+        if (WORLD_STATE.precipitation === "snow" && WORLD_STATE.season === "winter") {
+
+            ctx.fillStyle = "rgba(255,255,255,0.8)";
+
+            for (let i = 0; i < 80; i++) {
+                ctx.beginPath();
+                ctx.arc(
+                    Math.random() * width,
+                    Math.random() * height,
+                    Math.random() * 2,
+                    0,
+                    Math.PI * 2
+                );
                 ctx.fill();
             }
         }
 
-        bgId = requestAnimationFrame(drawBG);
-    }
+        // --------------------------------------------------------
+        // SHOOTING STARS
+        // --------------------------------------------------------
 
-    function drawFG() {
-
-        frame++;
-        fctx.clearRect(0, 0, fw, fh);
-
-        // ====================================================
-        // HILLS (IMPORTANT FIX: ground-clipped silhouette)
-        // ====================================================
-        for (const h of hills) {
-
-            fctx.fillStyle = h.color;
-
-            const peakOffset = h.h * (0.8 + Math.sin(h.x * 0.01) * 0.15);
-
-            fctx.beginPath();
-            fctx.moveTo(h.x, h.y);
-
-            // asymmetrical hill shape (prevents identical blobs)
-            fctx.quadraticCurveTo(
-                h.x + h.w * 0.35,
-                h.y - peakOffset * 0.6,
-                h.x + h.w * 0.7,
-                h.y - peakOffset * 0.2
-            );
-
-            fctx.quadraticCurveTo(
-                h.x + h.w,
-                h.y,
-                h.x + h.w,
-                fh
-            );
-
-            fctx.lineTo(h.x, fh);
-            fctx.closePath();
-
-            fctx.fill();
+        if (Math.random() < 0.004 && starsEnabled()) {
+            shootingStars.push({
+                x: Math.random() * width,
+                y: Math.random() * height / 2,
+                length: 50 + Math.random() * 100,
+                speed: 2 + Math.random() * 2,
+                angle: Math.PI / 4,
+                alpha: 0.4 + Math.random() * 0.3
+            });
         }
 
-        // ====================================================
-        // TREES
-        // ====================================================
-        const sway = Math.sin(frame * 0.01) * 2;
+        shootingStars.forEach((s, i) => {
 
-        for (const t of trees) {
-            const y = fh * 0.78 + noise(t.x) * 15;
+            ctx.strokeStyle = `rgba(255,255,255,${s.alpha})`;
+            ctx.beginPath();
+            ctx.moveTo(s.x, s.y);
+            ctx.lineTo(
+                s.x + Math.cos(s.angle) * s.length,
+                s.y + Math.sin(s.angle) * s.length
+            );
+            ctx.stroke();
 
-            fctx.fillStyle = "#0b0f14";
-            fctx.beginPath();
-            fctx.moveTo(t.x, y);
-            fctx.lineTo(t.x - 8 * t.s + sway, y + 25 * t.s);
-            fctx.lineTo(t.x + 8 * t.s + sway, y + 25 * t.s);
-            fctx.closePath();
-            fctx.fill();
-        }
+            s.x += Math.cos(s.angle) * s.speed;
+            s.y += Math.sin(s.angle) * s.speed;
+            s.alpha -= 0.003;
 
-        fgId = requestAnimationFrame(drawFG);
+            if (s.alpha <= 0) shootingStars.splice(i, 1);
+        });
+
+        animationId = requestAnimationFrame(drawBG);
     }
 
-    // ========================================================
-    // START
-    // ========================================================
-    resize();
     drawBG();
-    drawFG();
+
+    // ============================================================
+    // STOP HANDLE (FIXED)
+    // ============================================================
 
     window.currentThemeAnimation = {
         stop: () => {
-            cancelAnimationFrame(bgId);
-            cancelAnimationFrame(fgId);
+            cancelAnimationFrame(animationId);
         }
     };
 
+    // ============================================================
+    // RESIZE
+    // ============================================================
+
+    window.addEventListener('resize', () => {
+        width = canvas.width = canvas.offsetWidth;
+        height = canvas.height = canvas.offsetHeight;
+    });
+
+
+    function bindWorldControls() {
+
+        console.log("BIND TRY:", {
+            time: document.getElementById("timeOfDay"),
+            season: document.getElementById("seasonSelect"),
+            cloud: document.getElementById("cloudSelect"),
+            precip: document.getElementById("precipSelect")
+        });
+
+        const timeSlider = document.getElementById("timeOfDay");
+        const seasonSelect = document.getElementById("seasonSelect");
+        const cloudSelect = document.getElementById("cloudSelect");
+        const precipSelect = document.getElementById("precipSelect");
+
+        if (!timeSlider || !seasonSelect || !cloudSelect || !precipSelect) {
+            return;
+        }
+
+        // Time of day
+        timeSlider.addEventListener("input", (e) => {
+            WORLD_STATE.timeOfDay = parseInt(e.target.value, 10);
+        });
+
+        // Season
+        seasonSelect.addEventListener("change", (e) => {
+            WORLD_STATE.season = e.target.value;
+        });
+
+        // Cloud
+        cloudSelect.addEventListener("change", (e) => {
+            WORLD_STATE.cloud = e.target.value;
+        });
+
+        // Precipitation
+        precipSelect.addEventListener("change", (e) => {
+            const value = e.target.value;
+
+            // enforce rule: snow only in winter
+            if (value === "snow" && WORLD_STATE.season !== "winter") {
+                precipSelect.value = "none";
+                WORLD_STATE.precipitation = "none";
+                return;
+            }
+
+            WORLD_STATE.precipitation = value;
+        });
+    }
+
+    bindWorldControls();    
 })();

@@ -76,11 +76,12 @@
     let animationId;
 
     function drawBG() {
+        const now = performance.now();
         ctx.clearRect(0, 0, width, height);
 
         // Background gradient
         const grad = ctx.createLinearGradient(0, 0, 0, height);
-        const pulse = 0.02 * Math.sin(Date.now() * 0.0005);
+        const pulse = 0.02 * Math.sin(now * 0.0005);
         grad.addColorStop(0, `rgba(${37 + pulse*20},19,56,1)`);
         grad.addColorStop(0.5, `rgba(${18 + pulse*10},11,30,1)`);
         grad.addColorStop(1, '#07060a');
@@ -89,7 +90,7 @@
 
         // Stars
         stars.forEach(s => {
-            ctx.globalAlpha = s.opacity + Math.sin(Date.now() * s.flicker) * 0.02;
+            ctx.globalAlpha = s.opacity + Math.sin(now * s.flicker) * 0.02;
             ctx.fillStyle = '#fff';
             ctx.beginPath();
             ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
@@ -100,7 +101,7 @@
         // Aurora layers
         auroraLayers.forEach(layer => {
             ctx.beginPath();
-            for (let x = 0; x <= width; x++) {
+            for (let x = 0; x <= width; x += 4) {
                 const wave = Math.sin((x / layer.wavelength) * 2 * Math.PI + layer.phase);
                 const y = layer.yOffset + wave * layer.amplitude;
                 if (x === 0) ctx.moveTo(x, y);
@@ -111,15 +112,12 @@
             ctx.closePath();
 
             const gradient = ctx.createLinearGradient(0, 0, 0, layer.amplitude * 2 + 20);
-            const subtleAlpha = 0.05 + Math.sin(Date.now() * layer.flickerOffset) * 0.01;
+            const subtleAlpha = 0.05 + Math.sin(now * layer.flickerOffset) * 0.01;
             gradient.addColorStop(0, layer.color.replace(/0\.\d+\)/, `${0.1 + subtleAlpha})`));
             gradient.addColorStop(0.5, 'rgba(0,0,0,0.05)');
             gradient.addColorStop(1, 'rgba(0,0,0,0)');
             ctx.fillStyle = gradient;
-            ctx.shadowColor = layer.color;
-            ctx.shadowBlur = 20;
             ctx.fill();
-            ctx.shadowBlur = 0;
 
             layer.phase += layer.speed;
             layer.yOffset += layer.verticalDrift;
@@ -139,7 +137,7 @@
         // Aurora trails
         trails.forEach(t => {
             ctx.beginPath();
-            for (let x = 0; x <= width; x += 2) {
+            for (let x = 0; x <= width; x += 8) {
                 const y = t.y + Math.sin((x / t.wavelength) * 2 * Math.PI + t.phase) * t.amplitude;
                 if (x === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
@@ -181,7 +179,10 @@
     drawBG();
 
     window.currentThemeAnimation = {
-        stop: () => cancelAnimationFrame(animationId)
+        stop: () => {
+            cancelAnimationFrame(animationId);
+            cancelAnimationFrame(fgAnimationId);
+        }
     };
 
     window.addEventListener('resize', () => {
@@ -216,22 +217,22 @@
         treeLayers = [];
         // back
         const backTrees = [];
-        for (let i = 0; i < Math.floor(fgWidth / 8); i++) backTrees.push({ x: Math.random() * fgWidth, y: fgHeight - 50, scale: 0.6 + Math.random() * 0.3 });
+        for (let i = 0; i < Math.floor(fgWidth / 20); i++) backTrees.push({ x: Math.random() * fgWidth, y: fgHeight - 50, scale: 0.6 + Math.random() * 0.3 });
         treeLayers.push(backTrees);
         // middle
         const midTrees = [];
-        for (let i = 0; i < Math.floor(fgWidth / 16); i++) midTrees.push({ x: Math.random() * fgWidth, y: fgHeight - (Math.random() * 40 + 30), scale: 0.9 + Math.random() * 0.4 });
+        for (let i = 0; i < Math.floor(fgWidth / 40); i++) midTrees.push({ x: Math.random() * fgWidth, y: fgHeight - (Math.random() * 40 + 30), scale: 0.9 + Math.random() * 0.4 });
         treeLayers.push(midTrees);
         // front
         const frontTrees = [];
-        for (let i = 0; i < Math.floor(fgWidth / 32); i++) frontTrees.push({ x: Math.random() * fgWidth, y: fgHeight - (Math.random() * 50 + 20), scale: 1.2 + Math.random() * 0.6 });
+        for (let i = 0; i < Math.floor(fgWidth / 80); i++) frontTrees.push({ x: Math.random() * fgWidth, y: fgHeight - (Math.random() * 50 + 20), scale: 1.2 + Math.random() * 0.6 });
         treeLayers.push(frontTrees);
     }
     createTrees();
 
     // Fireflies
     const fireflies = [];
-    for (let i = 0; i < Math.floor(fgWidth / 40); i++) {
+    for (let i = 0; i < Math.floor(fgWidth / 100); i++) {
         fireflies.push({
             x: Math.random() * fgWidth,
             y: fgHeight - (Math.random() * 120 + 20),
@@ -279,7 +280,7 @@
 
         // Fireflies
         fireflies.forEach(f => {
-            fctx.globalAlpha = f.alpha + Math.sin(Date.now() * f.flickerSpeed) * 0.3;
+            fctx.globalAlpha = f.alpha + Math.sin(now * f.flickerSpeed) * 0.3;
             fctx.fillStyle = 'rgba(255,255,180,1)';
             fctx.beginPath();
             fctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);

@@ -1,87 +1,120 @@
-// Sidebar behavior
+// ============================================================
+// SCRIPT.JS — MASTER RENDER CONTROLLER
+// Handles theme lifecycle safely
+// ============================================================
+
+// ----------------------
+// SIDEBAR
+// ----------------------
 const sidebar = document.getElementById("sidebar");
 let hideTimeout;
 
-document.addEventListener("mousemove", event => {
-    if (event.clientX < 50) sidebar.classList.add("visible");
+document.addEventListener("mousemove", (e) => {
+    if (e.clientX < 80) sidebar?.classList.add("visible");
 });
 
-sidebar.addEventListener("mouseleave", () => {
-    hideTimeout = setTimeout(() => sidebar.classList.remove("visible"), 100);
+sidebar?.addEventListener("mouseleave", () => {
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => sidebar?.classList.remove("visible"), 100);
 });
 
-// Dropdown
-const themeToggleButton = document.getElementById("theme-toggle");
+// ----------------------
+// THEME UI
+// ----------------------
+const themeToggle = document.getElementById("theme-toggle");
 const themeDropdown = document.getElementById("theme-dropdown");
 
-themeToggleButton.addEventListener("click", () => themeDropdown.classList.toggle("show"));
-window.addEventListener("click", event => {
-    if (!event.target.matches('#theme-toggle') && themeDropdown.classList.contains("show")) {
-        themeDropdown.classList.remove("show");
+themeToggle?.addEventListener("click", () => {
+    themeDropdown.classList.toggle("show");
+});
+
+window.addEventListener("click", (e) => {
+    if (!e.target.matches("#theme-toggle")) {
+        themeDropdown?.classList.remove("show");
     }
 });
 
-// Theme map
+// ----------------------
+// THEMES
+// ONLY ONE ACTIVE AT A TIME
+// ----------------------
 const themes = {
-    realTheme: { script: "./js/realTheme.js" },
-    twilight: { script: "./js/twilight.js" },
-    onyx: { script: "./js/onyx.js" },
-    dawn: { script: "./js/dawn.js" },
-    matrix: { script: "./js/matrix.js" }
+    world: "./js/world.js"
 };
 
-
-let currentThemeAnimation = null;
 let currentScript = null;
+let currentStop = null;
 
-async function setTheme(theme) {
-    // Stop previous animation
-    if (currentThemeAnimation?.stop) currentThemeAnimation.stop();
+// ----------------------
+// SAFE THEME SWITCH
+// ----------------------
+function setTheme(name) {
 
-    // Clear canvas
-    const canvas = document.getElementById('themeCanvas');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // STOP OLD ENGINE
+    if (currentStop) {
+        try { currentStop(); } catch (e) {}
+        currentStop = null;
+    }
 
-    // Remove previously loaded script
-    if (currentScript) document.head.removeChild(currentScript);
+    // REMOVE OLD SCRIPT
+    if (currentScript) {
+        document.head.removeChild(currentScript);
+        currentScript = null;
+    }
 
-    // Load new script
-    const script = document.createElement('script');
-    script.src = themes[theme].script;
+    // CLEAR CANVASES (IMPORTANT)
+    const canvas = document.getElementById("themeCanvas");
+    const fg = document.getElementById("foregroundCanvas");
+
+    if (canvas) {
+        const c = canvas.getContext("2d");
+        c.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    if (fg) {
+        const f = fg.getContext("2d");
+        f.clearRect(0, 0, fg.width, fg.height);
+    }
+
+    // LOAD NEW ENGINE
+    const script = document.createElement("script");
+    script.src = themes[name];
     script.defer = true;
+
+    script.onload = () => {
+        currentStop = window.currentThemeAnimation?.stop || null;
+    };
+
     document.head.appendChild(script);
     currentScript = script;
 
-    // Update body class
-    document.body.className = '';
-    document.body.classList.add(`${theme}-theme`);
+    // BODY CLASS
+    document.body.className = "";
+    document.body.classList.add(`${name}-theme`);
 }
 
-// Theme selection buttons
-document.querySelectorAll('.theme-option').forEach(btn => {
-    btn.addEventListener('click', e => setTheme(e.target.dataset.theme));
+// ----------------------
+// BUTTON BINDING
+// ----------------------
+document.querySelectorAll(".theme-option").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        setTheme(e.target.dataset.theme);
+    });
 });
 
-// Initial theme
-window.onload = () => setTheme('realTheme');
+// ----------------------
+// INIT
+// ----------------------
+window.onload = () => {
+    setTheme("world");
+};
 
-// Resize canvas to header
-const canvas = document.getElementById('themeCanvas');
-function resizeCanvas() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+// ----------------------
+// PARALLAX FOREGROUND
+// ----------------------
+window.addEventListener("scroll", () => {
+    const fg = document.getElementById("foregroundCanvas");
+    if (!fg) return;
 
-
-window.addEventListener('scroll', () => {
-    const fg = document.getElementById('foregroundCanvas');
-    const scrollTop = window.scrollY;
-
-    // Move FG canvas up with scroll
-    fg.style.transform = `translateY(-${scrollTop}px)`;
+    fg.style.transform = `translateY(-${window.scrollY}px)`;
 });
-
-

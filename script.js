@@ -132,7 +132,7 @@ document.querySelectorAll('.theme-option').forEach(btn => {
 // INIT
 // ----------------------
 
-window.onload = () => setTheme('twilight');
+window.onload = () => setTheme('world');
 
 
 // ----------------------

@@ -196,9 +196,9 @@
 // ----------------------
 (() => {
     const fgCanvas = document.getElementById('foregroundCanvas');
-            if (!fgCanvas) return;
-        // If world system exists, DO NOT run twilight FG
-        if (window.WORLD_STATE) return;
+    if (!fgCanvas) return;
+    // If world system exists, DO NOT run twilight FG
+    if (window.WORLD_STATE) return;
 
     fgCanvas.style.display = 'block';
     const fctx = fgCanvas.getContext('2d');

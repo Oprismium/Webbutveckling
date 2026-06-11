@@ -1,6 +1,4 @@
-// ============================================================
-// SCRIPT.JS — STABLE THEME CONTROLLER (FIXED)
-// ============================================================
+// script.js
 
 // ----------------------
 // SIDEBAR
@@ -208,3 +206,112 @@ function bindWorldUI() {
 window.addEventListener("load", () => {
     bindWorldUI();
 });
+
+const projects = {
+    aurora: {
+        title: "Aurora Borealis",
+        desc: "Solar wind interaction with planetary magnetic fields."
+    },
+    terrain: {
+        title: "Procedural Terrain",
+        desc: "Wave-based terrain synthesis using layered harmonic functions."
+    },
+    ai: {
+        title: "AI Navigation",
+        desc: "Steering forces and predictive movement systems."
+    }
+};
+
+const detail = document.getElementById("atlasDetail");
+
+document.querySelectorAll(".card-node").forEach(node => {
+
+    const key = node.dataset.project;
+
+    node.addEventListener("mouseenter", () => {
+        const p = projects[key];
+        detail.innerHTML = `
+            <h3>${p.title}</h3>
+            <p>${p.desc}</p>
+            <p style="opacity:0.6">Live preview initializing...</p>
+        `;
+    });
+
+    node.addEventListener("click", () => {
+        const p = projects[key];
+        detail.innerHTML = `
+            <h3>${p.title}</h3>
+            <p>${p.desc}</p>
+            <a href="./projects/${key}/${key}.html">Open Project →</a>
+        `;
+    });
+});
+
+function initMiniPreviews() {
+
+    document.querySelectorAll(".card-node").forEach(node => {
+
+        const canvas = node.querySelector(".preview-canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = 180;
+        canvas.height = 70;
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const t = performance.now() * 0.001;
+
+            // simple animated gradient
+            const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            grad.addColorStop(0, `rgba(80,140,255,0.4)`);
+            grad.addColorStop(1, `rgba(10,10,20,0.9)`);
+
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // moving dot (world pulse)
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(
+                (Math.sin(t) * 0.5 + 0.5) * canvas.width,
+                canvas.height / 2,
+                2,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    });
+}
+
+initMiniPreviews();
+
+const cards = document.querySelectorAll(".project-card");
+
+const states = [
+    ["front", "left", "right"],
+    ["right", "front", "left"],
+    ["left", "right", "front"]
+];
+
+let index = 0;
+
+function applyState(i) {
+    cards.forEach((card, idx) => {
+        card.classList.remove("front", "left", "right");
+        card.classList.add(states[i][idx]);
+    });
+}
+
+applyState(index);
+
+// slow controlled rotation (NOT frame-based chaos)
+setInterval(() => {
+    index = (index + 1) % states.length;
+    applyState(index);
+}, 4000);

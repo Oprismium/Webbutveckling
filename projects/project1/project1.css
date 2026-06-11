@@ -1,0 +1,181 @@
+/* ============================================================
+   GLOBAL BODY
+   ============================================================ */
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Courier New', Courier, monospace;
+    overflow-x: hidden;
+    position: relative;
+    background: linear-gradient(to bottom, #251338, #120b1e 55%, #07060a);
+    color: #d6b8ff;
+}
+
+
+/* ============================================================
+   HEADER & CANVASES
+   ============================================================ */
+
+.project-header {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Background canvas */
+#themeCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Foreground canvas — FIXED ALIGNMENT */
+#foregroundCanvas {
+    position: absolute;
+    bottom: -40px;
+    /* IMPORTANT FIX: pushes ground lower into frame */
+    left: 0;
+    width: 100%;
+    height: 220px;
+    /* slightly taller so trees are not clipped */
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Header content */
+.header-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    text-align: center;
+
+    margin-left: 0;
+    max-width: 90%;
+}
+
+
+/* Title */
+header h1 {
+    font-size: 3em;
+    margin: 0;
+}
+
+header p {
+    font-size: 1.2em;
+    margin-top: 10px;
+    color: #d6b8ff;
+}
+
+
+/* ============================================================
+   PAGE CONTENT
+   ============================================================ */
+
+.container {
+    position: relative;
+    z-index: 2;
+    margin-left: 0px;
+    /* match sidebar width */
+    padding: 20px;
+    background: rgba(30, 15, 50, 0.95);
+    border-top: 2px solid #c29bff;
+    border-radius: 10px 10px 0 0;
+}
+
+
+/* ============================================================
+   SIDEBAR (COPIED FROM MASTER.CSS - FIXED BEHAVIOR)
+   ============================================================ */
+
+.sidebar {
+    width: 250px;
+    background: rgba(30, 15, 50, 0.82);
+    position: fixed;
+    top: 0;
+    left: -250px;
+    height: 100%;
+    padding-top: 20px;
+    transition: left 0.3s ease;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    box-shadow: inset 0 0 20px rgba(180, 130, 255, 0.15);
+}
+
+.sidebar.visible {
+    left: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 15px 0;
+}
+
+.sidebar ul li a,
+.sidebar ul li button {
+    text-decoration: none;
+    cursor: pointer;
+    color: inherit;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li button:hover {
+    background: rgba(60, 35, 95, 0.85);
+}
+
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card {
+    border-radius: 10px;
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid #4fc3f7;
+}
+
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #4fc3f7;
+    color: black;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+
+/* ============================================================
+   CRITICAL FIX NOTES
+   ============================================================ */
+
+/*
+- foregroundCanvas bottom offset fixes "floating trees in sky"
+- sidebar copied from master system (no static sidebar)
+- header content shifted away from sidebar overlap
+- container aligned with sidebar width
+*/

@@ -293,25 +293,46 @@ initMiniPreviews();
 
 const cards = document.querySelectorAll(".project-card");
 
-const states = [
-    ["front", "left", "right"],
-    ["right", "front", "left"],
-    ["left", "right", "front"]
-];
+// logical slots
+const slots = ["front", "right", "left"];
 
-let index = 0;
+let activeIndex = 0;
+let isAnimating = false;
 
-function applyState(i) {
-    cards.forEach((card, idx) => {
+function applySlots() {
+    cards.forEach((card, i) => {
         card.classList.remove("front", "left", "right");
-        card.classList.add(states[i][idx]);
+        card.classList.add(slots[i]);
     });
 }
 
-applyState(index);
+// initial state
+applySlots();
 
-// slow controlled rotation (NOT frame-based chaos)
-setInterval(() => {
-    index = (index + 1) % states.length;
-    applyState(index);
-}, 4000);
+function rotate() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    // shift order: front → left → right → front
+    activeIndex = (activeIndex + 1) % 3;
+
+    // rotate slot mapping instead of teleporting classes
+    const newSlots = [
+        slots[(0 + activeIndex) % 3],
+        slots[(1 + activeIndex) % 3],
+        slots[(2 + activeIndex) % 3]
+    ];
+
+    // assign new positions
+    cards.forEach((card, i) => {
+        card.classList.remove("front", "left", "right");
+        card.classList.add(newSlots[i]);
+    });
+
+    // lock animation window so nothing overlaps mid-transition
+    setTimeout(() => {
+        isAnimating = false;
+    }, 900);
+}
+
+setInterval(rotate, 4000);
